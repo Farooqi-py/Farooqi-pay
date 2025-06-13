@@ -29,7 +29,7 @@ def create_checkout_session():
                 'quantity': 1,
             }],
             customer_email=email,
-            success_url='https://farooqi-payments.onrender.comsuccess?email=' + email,
+            success_url='https://farooqi-payments.onrender.com/success?email=' + email,
             cancel_url='https://farooqi-payments.onrender.com/cancel',
 
         )
