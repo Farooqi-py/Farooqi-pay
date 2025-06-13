@@ -7,11 +7,7 @@ app = Flask(__name__)
 
 # Use environment variable for secret key to avoid exposing it in public code
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
-
-# Use environment variable for price id
 PRICE_ID = os.environ.get('STRIPE_PRICE_ID')
-
-# Local path to user database (in Render you'll probably use persistent volume or cloud storage in future)
 USER_DB_PATH = 'users.json'
 
 @app.route('/create-checkout-session')
@@ -24,14 +20,10 @@ def create_checkout_session():
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             mode='subscription',
-            line_items=[{
-                'price': PRICE_ID,
-                'quantity': 1,
-            }],
+            line_items=[{'price': PRICE_ID, 'quantity': 1}],
             customer_email=email,
             success_url='https://farooqi-payments.onrender.com/success?email=' + email,
             cancel_url='https://farooqi-payments.onrender.com/cancel',
-
         )
         return redirect(session.url, code=303)
     except Exception as e:
@@ -62,6 +54,23 @@ def success():
 @app.route('/cancel')
 def cancel():
     return "<h1>Payment cancelled</h1>"
+
+# ✅ THIS IS THE NEW PART:
+@app.route('/get_user_status')
+def get_user_status():
+    email = request.args.get('email')
+    if not email:
+        return jsonify({'error': 'Missing email'}), 400
+
+    if os.path.exists(USER_DB_PATH):
+        with open(USER_DB_PATH, 'r') as f:
+            data = json.load(f)
+    else:
+        data = {}
+
+    user = data.get(email, {})
+    is_premium = user.get('is_premium', False)
+    return jsonify({'email': email, 'is_premium': is_premium})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 4242))
