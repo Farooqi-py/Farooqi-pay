@@ -29,8 +29,9 @@ def create_checkout_session():
                 'quantity': 1,
             }],
             customer_email=email,
-            success_url='https://YOUR_RENDER_URL/success?email=' + email,
-            cancel_url='https://YOUR_RENDER_URL/cancel',
+            success_url='https://farooqi-payments.onrender.comsuccess?email=' + email,
+            cancel_url='https://farooqi-payments.onrender.com/cancel',
+
         )
         return redirect(session.url, code=303)
     except Exception as e:
